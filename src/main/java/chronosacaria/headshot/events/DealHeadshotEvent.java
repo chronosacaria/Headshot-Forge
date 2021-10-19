@@ -39,8 +39,8 @@ public class DealHeadshotEvent {
                     if (event.getSource().getTrueSource() instanceof ServerPlayerEntity && playerEntity != null) {
                         playerEntity.sendStatusMessage(new StringTextComponent("Headshot!"), true);
                     }
-                    float headshotDamage = event.getAmount() * HeadshotConfig.HEADSHOT_DAMAGE_MULTIPLIER.get();
-                    event.setAmount(headshotDamage);
+                    double headshotDamage = event.getAmount() * HeadshotConfig.HEADSHOT_DAMAGE_MULTIPLIER.get();
+                    event.setAmount((float)headshotDamage);
                     ignore = true;
 
                     if (HeadshotConfig.DO_BLINDNESS.get()) {

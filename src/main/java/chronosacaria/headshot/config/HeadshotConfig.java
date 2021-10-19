@@ -11,7 +11,7 @@ import java.io.File;
 
 public class HeadshotConfig {
     private static final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-    public static ForgeConfigSpec.ConfigValue<Float> HEADSHOT_DAMAGE_MULTIPLIER;
+    public static ForgeConfigSpec.DoubleValue HEADSHOT_DAMAGE_MULTIPLIER;
     public static ForgeConfigSpec.ConfigValue<Boolean> DO_BLINDNESS;
     public static ForgeConfigSpec.ConfigValue<Boolean> DO_NAUSEA;
     public static ForgeConfigSpec.ConfigValue<Integer> BLIND_TICKS;
@@ -35,7 +35,7 @@ public class HeadshotConfig {
         builder.comment("Headshot Mod Configuration").push("headshot_mod_configuration");
         HEADSHOT_DAMAGE_MULTIPLIER = builder
                 .comment("Choose the damage multiplier done on a headshot. [default 1.5]")
-                .define("damageMultiplier", 1.5f);
+                .defineInRange("damageMultiplier", 1.5, 1.0, 999.0);
         DO_BLINDNESS = builder
                 .comment("Enable blindness effect after being headshot. [true / false, default, false]")
                 .define("doBlindness", false);
