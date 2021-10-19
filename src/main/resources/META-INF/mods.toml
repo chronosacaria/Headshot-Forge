@@ -31,10 +31,11 @@ displayName="Headshot" #mandatory
 # A text field displayed in the mod UI
 #credits="Thanks for this example mod goes to Java" #optional
 # A text field displayed in the mod UI
-authors="chronosacaria, TheoreticallyUseful" #optional
+authors="chronosacaria" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Allows you to deal headshots causing extra damage and status effects
+Allows you to deal headshots causing extra damage and status effects. This is a port of the Fabric mod by
+TheoreticallyUseful.
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.headshot]] #optional

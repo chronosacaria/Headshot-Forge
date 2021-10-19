@@ -16,6 +16,7 @@ public class HeadshotConfig {
     public static ForgeConfigSpec.ConfigValue<Boolean> DO_NAUSEA;
     public static ForgeConfigSpec.ConfigValue<Integer> BLIND_TICKS;
     public static ForgeConfigSpec.ConfigValue<Integer> NAUSEA_TICKS;
+    public static ForgeConfigSpec.ConfigValue<Boolean> HELMET_MITIGATION;
 
     private static CommentedFileConfig cfg;
 
@@ -36,17 +37,20 @@ public class HeadshotConfig {
                 .comment("Choose the damage multiplier done on a headshot. [default 1.5]")
                 .define("damageMultiplier", 1.5f);
         DO_BLINDNESS = builder
-                .comment("Enable blindness effect after being headshot. [true / false]")
+                .comment("Enable blindness effect after being headshot. [true / false, default, false]")
                 .define("doBlindness", false);
         BLIND_TICKS = builder
                 .comment("The number of ticks that the blindness effect lasts for. [0 - 9999, default 35]")
                 .defineInRange("blindnessTicks", 35, 0, 9999);
         DO_NAUSEA = builder
-                .comment("Enable nausea effect after being headshot. [true / false]")
+                .comment("Enable nausea effect after being headshot. [true / false, default, false]]")
                 .define("doNausea", false);
         NAUSEA_TICKS = builder
                 .comment("The number of ticks that the nausea effect lasts for. [0 - 9999, default 35]")
                 .defineInRange("nauseaTicks", 35, 0, 9999);
+        HELMET_MITIGATION = builder
+                .comment("Choose whether or not wearing a helmet can prevent a headshot. [true / false, default true]")
+                .define("doHelmetMitigation", true);
         builder.pop();
     }
 
