@@ -49,9 +49,8 @@ public class HeadshotConfig {
                 .comment("The number of ticks that the nausea effect lasts for. [0 - 9999, default 35]")
                 .defineInRange("nauseaTicks", 35, 0, 9999);
         HELMET_MITIGATION = builder
-                .comment("Choose whether or not wearing a helmet can prevent a headshot. [true / false, default true]")
-                .define("doHelmetMitigation", true);
+                .comment("Choose whether or not wearing a helmet can prevent a headshot. [true / false, default false]")
+                .define("doHelmetMitigation", false);
         builder.pop();
     }
-
 }
