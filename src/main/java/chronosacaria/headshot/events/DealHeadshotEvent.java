@@ -8,6 +8,7 @@ import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.monster.SlimeEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.potion.EffectInstance;
@@ -25,7 +26,7 @@ public class DealHeadshotEvent {
         boolean ignore = false;
 
         if (event.getSource().isProjectile()) {
-            ServerPlayerEntity playerEntity = (ServerPlayerEntity) event.getSource().getTrueSource();
+            LivingEntity livingEntity = (LivingEntity) event.getSource().getTrueSource();
             Entity entity = event.getEntityLiving();
             double headStart = entity.getPositionVec().add(0.0, entity.getSize(entity.getPose()).height * 0.85, 0.0).y - 0.17;
                 if (!ignore && doesNotHaveHelmet(event.getEntity())
@@ -36,8 +37,9 @@ public class DealHeadshotEvent {
                             || event.getEntity() instanceof WaterMobEntity
                             || event.getEntity() instanceof SlimeEntity
                             || event.getEntity() instanceof EnderDragonEntity) return;
-                    if (event.getSource().getTrueSource() instanceof ServerPlayerEntity && playerEntity != null) {
-                        playerEntity.sendStatusMessage(new StringTextComponent("Headshot!"), true);
+                    if (event.getSource().getTrueSource() instanceof ServerPlayerEntity && livingEntity != null) {
+                        ((ServerPlayerEntity)livingEntity).sendStatusMessage(new StringTextComponent("Headshot!"),
+                                true);
                     }
                     double headshotDamage = event.getAmount() * HeadshotConfig.HEADSHOT_DAMAGE_MULTIPLIER.get();
                     event.setAmount((float)headshotDamage);
