@@ -26,7 +26,7 @@ public class DealHeadshotEvent {
         boolean ignore = false;
 
         if (event.getSource().isProjectile()) {
-            LivingEntity livingEntity = (LivingEntity) event.getSource().getTrueSource();
+            Entity trueSource = event.getSource().getTrueSource();
             Entity entity = event.getEntityLiving();
             double headStart = entity.getPositionVec().add(0.0, entity.getSize(entity.getPose()).height * 0.85, 0.0).y - 0.17;
                 if (!ignore && doesNotHaveHelmet(event.getEntity())
@@ -37,8 +37,8 @@ public class DealHeadshotEvent {
                             || event.getEntity() instanceof WaterMobEntity
                             || event.getEntity() instanceof SlimeEntity
                             || event.getEntity() instanceof EnderDragonEntity) return;
-                    if (event.getSource().getTrueSource() instanceof ServerPlayerEntity && livingEntity != null) {
-                        ((ServerPlayerEntity)livingEntity).sendStatusMessage(new StringTextComponent("Headshot!"),
+                    if (event.getSource().getTrueSource() instanceof ServerPlayerEntity && trueSource != null) {
+                        ((ServerPlayerEntity)trueSource).sendStatusMessage(new StringTextComponent("Headshot!"),
                                 true);
                     }
                     double headshotDamage = event.getAmount() * HeadshotConfig.HEADSHOT_DAMAGE_MULTIPLIER.get();
