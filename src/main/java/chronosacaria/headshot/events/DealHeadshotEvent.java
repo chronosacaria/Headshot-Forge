@@ -37,12 +37,19 @@ public class DealHeadshotEvent {
                             || event.getEntity() instanceof WaterMobEntity
                             || event.getEntity() instanceof SlimeEntity
                             || event.getEntity() instanceof EnderDragonEntity) return;
+                    if (event.getSource().getDamageLocation().y > headStart){
+                        if (entity instanceof ServerPlayerEntity) {
+                            ((ServerPlayerEntity) entity).sendStatusMessage(new StringTextComponent("You got headshot!"),
+                                    true);
+                        }
+                    }
                     if (event.getSource().getTrueSource() instanceof ServerPlayerEntity && trueSource != null) {
                         ((ServerPlayerEntity)trueSource).sendStatusMessage(new StringTextComponent("Headshot!"),
                                 true);
                     }
                     double headshotDamage = event.getAmount() * HeadshotConfig.HEADSHOT_DAMAGE_MULTIPLIER.get();
                     event.setAmount((float)headshotDamage);
+                    event.getEntityLiving().getItemStackFromSlot(EquipmentSlotType.HEAD).attemptDamageItem(((int)headshotDamage/2), event.getEntity().getEntityWorld().rand, null);
                     ignore = true;
 
                     if (HeadshotConfig.DO_BLINDNESS.get()) {
