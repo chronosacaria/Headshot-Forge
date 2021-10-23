@@ -12,6 +12,7 @@ import java.io.File;
 public class HeadshotConfig {
     private static final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
     public static ForgeConfigSpec.DoubleValue HEADSHOT_DAMAGE_MULTIPLIER;
+    public static ForgeConfigSpec.DoubleValue HEADSHOT_PROJECTILE_PROTECTION_DAMAGE_REDUCTION;
     public static ForgeConfigSpec.ConfigValue<Boolean> DO_BLINDNESS;
     public static ForgeConfigSpec.ConfigValue<Boolean> DO_NAUSEA;
     public static ForgeConfigSpec.ConfigValue<Integer> BLIND_TICKS;
@@ -36,6 +37,10 @@ public class HeadshotConfig {
         HEADSHOT_DAMAGE_MULTIPLIER = builder
                 .comment("Choose the damage multiplier done on a headshot. [default 1.5]")
                 .defineInRange("damageMultiplier", 1.5, 1.0, 999.0);
+        HEADSHOT_PROJECTILE_PROTECTION_DAMAGE_REDUCTION = builder
+                .comment("Choose the percentage of damage reduction for Projectile Protection from a headshot. " +
+                        "Note, 0.5 is 50%. [0.0 - 1.0, default 0.5]")
+                .defineInRange("headshotProjectileProtectionDamageReduction", 0.50, 0.0, 1.0);
         DO_BLINDNESS = builder
                 .comment("Enable blindness effect after being headshot. [true / false, default, false]")
                 .define("doBlindness", false);

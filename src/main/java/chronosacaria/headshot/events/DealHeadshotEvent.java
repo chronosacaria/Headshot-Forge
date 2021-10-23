@@ -2,13 +2,14 @@ package chronosacaria.headshot.events;
 
 import chronosacaria.headshot.Headshot;
 import chronosacaria.headshot.config.HeadshotConfig;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.monster.SlimeEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.potion.EffectInstance;
@@ -26,43 +27,84 @@ public class DealHeadshotEvent {
         boolean ignore = false;
 
         if (event.getSource().isProjectile()) {
+            // Firing Entity or Projectile in the case of no True Source
             Entity trueSource = event.getSource().getTrueSource();
+
+            // Target Entity
             Entity entity = event.getEntityLiving();
+
+            // Isolation of the head of bipedal mobs
             double headStart = entity.getPositionVec().add(0.0, entity.getSize(entity.getPose()).height * 0.85, 0.0).y - 0.17;
-                if (!ignore && doesNotHaveHelmet(event.getEntity())
-                        && event.getSource().getDamageLocation().y > headStart
-                        && event.getSource() != null
-                        && !((LivingEntity) entity).canBlockDamageSource(event.getSource())) {
-                    if (event.getEntity() instanceof AnimalEntity
-                            || event.getEntity() instanceof WaterMobEntity
-                            || event.getEntity() instanceof SlimeEntity
-                            || event.getEntity() instanceof EnderDragonEntity) return;
-                    if (event.getSource().getDamageLocation().y > headStart){
-                        if (entity instanceof ServerPlayerEntity) {
-                            ((ServerPlayerEntity) entity).sendStatusMessage(new StringTextComponent("You got headshot!"),
-                                    true);
-                        }
-                    }
-                    if (event.getSource().getTrueSource() instanceof ServerPlayerEntity && trueSource != null) {
-                        ((ServerPlayerEntity)trueSource).sendStatusMessage(new StringTextComponent("Headshot!"),
+
+            // Determining if the target is wearing a helmet. If the target does not have a helmet on, do X
+            if (!ignore && doesNotHaveHelmet(event.getEntity())
+                    && event.getSource().getDamageLocation().y > headStart // Is the damage location the head?
+                    && event.getSource() != null // Is the source valid?
+                    && !((LivingEntity) entity).canBlockDamageSource(event.getSource())) { // Is the target blocking the projectile with a shield?
+                if (event.getEntity() instanceof AnimalEntity                       // Is the target quadrupedal?
+                        || event.getEntity() instanceof WaterMobEntity              // Is the target a water mob?
+                        || event.getEntity() instanceof SlimeEntity                 // Is the target a slime?
+                        || event.getEntity() instanceof EnderDragonEntity) return;  // Is the target the Ender Dragon?
+                if (event.getSource().getDamageLocation().y > headStart) { // Did the arrow hit the target's head?
+                    // Message sent to Player who made the headshot
+                    if (entity instanceof ServerPlayerEntity) {
+                        ((ServerPlayerEntity) entity).sendStatusMessage(new StringTextComponent("You got headshot!"),
                                 true);
                     }
-                    double headshotDamage = event.getAmount() * HeadshotConfig.HEADSHOT_DAMAGE_MULTIPLIER.get();
-                    event.setAmount((float)headshotDamage);
-                    event.getEntityLiving().getItemStackFromSlot(EquipmentSlotType.HEAD).attemptDamageItem(((int)headshotDamage/2), event.getEntity().getEntityWorld().rand, null);
+                }
+                // Message sent to the Player who was headshot
+                if (event.getSource().getTrueSource() instanceof ServerPlayerEntity && trueSource != null) {
+                    ((ServerPlayerEntity) trueSource).sendStatusMessage(new StringTextComponent("Headshot!"),
+                            true);
+                }
+                // Headshot damage configuration
+                double headshotDamage = event.getAmount() * HeadshotConfig.HEADSHOT_DAMAGE_MULTIPLIER.get();
+                double projectileProtectionDamageReduction =
+                        HeadshotConfig.HEADSHOT_PROJECTILE_PROTECTION_DAMAGE_REDUCTION.get();
+
+                if (hasProjectileProtection(event.getEntity())) { // Does the target have Projectile Protection? If so, do X
+                    event.setAmount((float) headshotDamage * (float) projectileProtectionDamageReduction); // Damage is halved with Projectile Protection
+
+                    /* Extra damage is done to helmets with a headshot.
+                     * With Projectile Protection, that damage is cut to 25% of
+                     * damage received.
+                     */
+                    event.getEntityLiving()
+                            .getItemStackFromSlot(EquipmentSlotType.HEAD)
+                            .attemptDamageItem(
+                                    ((int) headshotDamage / 4),
+                                    event.getEntity().getEntityWorld().rand,
+                                    null);
+                } else if (!(hasProjectileProtection(event.getEntity()))) { // Does the target have Projectile Protection? If not, to Y
+                    event.setAmount((float) headshotDamage); // Full damage without Projectile Protection
+
+                    /* Extra damage is done to helmets with a headshot.
+                     * Without Projectile Protection, that damage is cut to 50% of
+                     * damage received.
+                     */
+                    event.getEntityLiving()
+                            .getItemStackFromSlot(EquipmentSlotType.HEAD)
+                            .attemptDamageItem(
+                                    ((int) headshotDamage / 2),
+                                    event.getEntity().getEntityWorld().rand,
+                                    null);
                     ignore = true;
 
+                    // Optional Blindness Effect
                     if (HeadshotConfig.DO_BLINDNESS.get()) {
                         ((LivingEntity) entity).addPotionEffect(new EffectInstance(Effects.BLINDNESS,
                                 HeadshotConfig.BLIND_TICKS.get(), 3));
                     }
+
+                    // Optional Nausea Effect
                     if (HeadshotConfig.DO_NAUSEA.get()) {
                         ((LivingEntity) entity).addPotionEffect(new EffectInstance(Effects.NAUSEA,
                                 HeadshotConfig.NAUSEA_TICKS.get(), 2));
                     }
                     return;
+                }
+                ignore = false;
             }
-            ignore = false;
         }
 
     }
@@ -71,5 +113,10 @@ public class DealHeadshotEvent {
             return ((LivingEntity) entity).getItemStackFromSlot(EquipmentSlotType.HEAD).isEmpty();
         }
         return entity instanceof LivingEntity;
+    }
+
+    private static boolean hasProjectileProtection(Entity entity){
+        return EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.PROJECTILE_PROTECTION, (LivingEntity) entity) > 0;
+
     }
 }
