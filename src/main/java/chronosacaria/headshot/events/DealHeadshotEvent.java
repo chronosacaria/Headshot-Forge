@@ -15,9 +15,12 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = Headshot.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class DealHeadshotEvent {
@@ -31,16 +34,16 @@ public class DealHeadshotEvent {
             Entity trueSource = event.getSource().getTrueSource();
 
             // Target Entity
-            Entity entity = event.getEntityLiving();
+            LivingEntity entity = event.getEntityLiving();
 
             // Isolation of the head of bipedal mobs
             double headStart = entity.getPositionVec().add(0.0, entity.getSize(entity.getPose()).height * 0.85, 0.0).y - 0.17;
 
             // Determining if the target is wearing a helmet. If the target does not have a helmet on, do X
             if (!ignore && doesNotHaveHelmet(event.getEntity())
-                    && event.getSource().getDamageLocation().y > headStart // Is the damage location the head?
+                    && Objects.requireNonNull(event.getSource().getDamageLocation()).y > headStart // Is the damage location the head?
                     && event.getSource() != null // Is the source valid?
-                    && !((LivingEntity) entity).canBlockDamageSource(event.getSource())) { // Is the target blocking the projectile with a shield?
+                    && !entity.canBlockDamageSource(event.getSource())) { // Is the target blocking the projectile with a shield?
                 if (event.getEntity() instanceof AnimalEntity                       // Is the target quadrupedal?
                         || event.getEntity() instanceof WaterMobEntity              // Is the target a water mob?
                         || event.getEntity() instanceof SlimeEntity                 // Is the target a slime?
@@ -48,13 +51,13 @@ public class DealHeadshotEvent {
                 if (event.getSource().getDamageLocation().y > headStart) { // Did the arrow hit the target's head?
                     // Message sent to Player who made the headshot
                     if (entity instanceof ServerPlayerEntity) {
-                        ((ServerPlayerEntity) entity).sendStatusMessage(new StringTextComponent("You got headshot!"),
+                        ((ServerPlayerEntity) entity).sendStatusMessage(new TranslationTextComponent("event_message.headshot.headshot_on_player"),
                                 true);
                     }
                 }
                 // Message sent to the Player who was headshot
                 if (event.getSource().getTrueSource() instanceof ServerPlayerEntity && trueSource != null) {
-                    ((ServerPlayerEntity) trueSource).sendStatusMessage(new StringTextComponent("Headshot!"),
+                    ((ServerPlayerEntity) trueSource).sendStatusMessage(new TranslationTextComponent("event_message.headshot.headshot_on_entity"),
                             true);
                 }
                 // Headshot damage configuration
@@ -92,13 +95,13 @@ public class DealHeadshotEvent {
 
                     // Optional Blindness Effect
                     if (HeadshotConfig.DO_BLINDNESS.get()) {
-                        ((LivingEntity) entity).addPotionEffect(new EffectInstance(Effects.BLINDNESS,
+                        entity.addPotionEffect(new EffectInstance(Effects.BLINDNESS,
                                 HeadshotConfig.BLIND_TICKS.get(), 3));
                     }
 
                     // Optional Nausea Effect
                     if (HeadshotConfig.DO_NAUSEA.get()) {
-                        ((LivingEntity) entity).addPotionEffect(new EffectInstance(Effects.NAUSEA,
+                        entity.addPotionEffect(new EffectInstance(Effects.NAUSEA,
                                 HeadshotConfig.NAUSEA_TICKS.get(), 2));
                     }
                     return;

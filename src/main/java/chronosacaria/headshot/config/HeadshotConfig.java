@@ -19,10 +19,8 @@ public class HeadshotConfig {
     public static ForgeConfigSpec.ConfigValue<Integer> NAUSEA_TICKS;
     public static ForgeConfigSpec.ConfigValue<Boolean> HELMET_MITIGATION;
 
-    private static CommentedFileConfig cfg;
-
     public HeadshotConfig(){
-        cfg = CommentedFileConfig
+        CommentedFileConfig cfg = CommentedFileConfig
                 .builder(new File(FMLPaths.CONFIGDIR.get().toString(), Headshot.MOD_ID + "-common.toml")).sync()
                 .autosave().build();
         cfg.load();
